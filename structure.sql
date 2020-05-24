@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS milestonesnapshots (
   doc_type character varying(255) not null,
   version integer not null,
   data json not null,
+  createdtime timestamp default now(),
   PRIMARY KEY (collection, doc_id, version)
 );
 
