@@ -32,7 +32,7 @@ MDB.prototype = import$(Object.create(MilestoneDB.prototype), {
     });
   },
   getMilestoneSnapshot: function(collection, id, version, callback){
-    return query("select * from snapshots where collection = $1 and doc_id = $2 and version = $3", [collection, id, version]).then(function(r){
+    return this.query("select * from milestonesnapshots where collection = $1 and doc_id = $2 and version = $3", [collection, id, version]).then(function(r){
       var n;
       r == null && (r = {});
       if ((r.rows || (r.rows = [])).length === 0) {
@@ -45,10 +45,16 @@ MDB.prototype = import$(Object.create(MilestoneDB.prototype), {
     });
   },
   saveMilestoneSnapshot: function(collection, snapshot, callback){
-    return query("insert into snapshots (collection,doc_id,doc_type,version,data) values \n($1,$2,$3,$4,$5)", [collection, snapshot.id, snapshot.type, snapshot.version, snapshot.data]).then(function(){
-      return callback(null);
-    })['catch'](function(){
-      return callback(new Error("PostgreSQL MilestoneDB for ShareDB failed to save milestone snapshot."));
+    console.log("saving...", collection, snapshot.id, snapshot.type, snapshot.v);
+    return this.query("insert into milestonesnapshots (collection,doc_id,doc_type,version,data) values \n($1,$2,$3,$4,$5)", [collection, snapshot.id, snapshot.type, snapshot.v, snapshot.data]).then(function(){
+      if (callback != null) {
+        return callback(null);
+      }
+    })['catch'](function(it){
+      console.log(it);
+      if (callback != null) {
+        return callback(new Error("PostgreSQL MilestoneDB for ShareDB failed to save milestone snapshot."));
+      }
     });
   }
 });
