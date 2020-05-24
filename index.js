@@ -40,18 +40,18 @@ MDB.prototype = import$(Object.create(MilestoneDB.prototype), {
       }
       n = r.rows[0];
       return callback(null, new Snapshot(n.doc_id, n.version, n.doc_type, d.data));
-    })['catch'](function(){
+    })['catch'](function(it){
+      console.log("[sharedb-pg-mdb] ", it);
       return callback(new Error("PostgreSQL MilestoneDB for ShareDB failed to get milestone snapshot."));
     });
   },
   saveMilestoneSnapshot: function(collection, snapshot, callback){
-    console.log("saving...", collection, snapshot.id, snapshot.type, snapshot.v);
-    return this.query("insert into milestonesnapshots (collection,doc_id,doc_type,version,data) values \n($1,$2,$3,$4,$5)", [collection, snapshot.id, snapshot.type, snapshot.v, snapshot.data]).then(function(){
+    return this.query("insert into milestonesnapshots (collection,doc_id,doc_type,version,data) values\n($1,$2,$3,$4,$5)", [collection, snapshot.id, snapshot.type, snapshot.v, snapshot.data]).then(function(){
       if (callback != null) {
         return callback(null);
       }
     })['catch'](function(it){
-      console.log(it);
+      console.log("[sharedb-pg-mdb] ", it);
       if (callback != null) {
         return callback(new Error("PostgreSQL MilestoneDB for ShareDB failed to save milestone snapshot."));
       }

@@ -26,17 +26,18 @@ MDB.prototype = Object.create(MilestoneDB.prototype) <<< do
         if r.[]rows.length == 0 => return callback null, null
         n = r.rows.0
         callback null, new Snapshot(n.doc_id, n.version, n.doc_type, d.data)
-      .catch -> callback new Error("PostgreSQL MilestoneDB for ShareDB failed to get milestone snapshot.")
+      .catch ->
+        console.log "[sharedb-pg-mdb] ", it
+        callback new Error("PostgreSQL MilestoneDB for ShareDB failed to get milestone snapshot.")
 
   saveMilestoneSnapshot: (collection, snapshot, callback) ->
-    console.log "saving...", collection, snapshot.id, snapshot.type, snapshot.v
     @query("""
     insert into milestonesnapshots (collection,doc_id,doc_type,version,data) values
     ($1,$2,$3,$4,$5)""",
     [collection, snapshot.id, snapshot.type, snapshot.v, snapshot.data])
       .then -> if callback? => callback null
       .catch ->
-        console.log it
+        console.log "[sharedb-pg-mdb] ", it
         if callback? => callback new Error("PostgreSQL MilestoneDB for ShareDB failed to save milestone snapshot.")
 
 #  not implemented.
